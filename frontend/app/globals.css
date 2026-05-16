@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --color-primary: #14532d;
+  --color-accent: #FDE047;
+  --color-btn-text: #14532d;
+  --color-page-bg: #f0fdf4;
+  --color-card-bg: #ffffff;
+  --color-border: #d1fae5;
+  --color-price: #15803d;
+  --color-badge-farm: #dcfce7;
+  --color-badge-text: #14532d;
+}
+
+body {
+  @apply font-body text-slate-800 antialiased;
+  background-color: var(--color-page-bg);
+  background-image: radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(21, 128, 61, 0.12), transparent 35%), url("/images/orchard-pattern.svg");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-urdu {
+  font-family: var(--font-urdu), "Noto Nastaliq Urdu", serif;
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 md:px-6;
+}
+
+.card {
+  @apply rounded-3xl border bg-white/90 p-5 shadow-sm backdrop-blur transition hover:shadow-md;
+  border-color: var(--color-border);
+  background-color: var(--color-card-bg);
+}
+
+.btn-primary {
+  @apply rounded-xl bg-gradient-to-r from-brand-sun via-brand-gold to-brand-leaf px-4 py-2 font-semibold shadow-sm transition hover:-translate-y-0.5 hover:opacity-95;
+  color: var(--color-btn-text);
+}
+
+.btn-secondary {
+  @apply rounded-xl border bg-white px-4 py-2 font-semibold text-slate-700 transition hover:bg-brand-harvest;
+  border-color: var(--color-border);
+}
+
+.input {
+  @apply w-full rounded-xl border bg-white px-3 py-2 outline-none transition focus:border-brand-leaf focus:ring-2 focus:ring-brand-mint;
+  border-color: var(--color-border);
+}
+
+.page-title {
+  @apply text-3xl font-semibold tracking-tight md:text-4xl;
+  color: #365314;
+}
+
+.subtle-text {
+  @apply text-sm text-slate-600;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.45s ease-out both;
+}
+
+.animate-pop-in {
+  animation: popIn 0.3s ease-out both;
+}
+
+.hover-lift {
+  @apply transition duration-200 hover:-translate-y-1 hover:shadow-lg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-pop-in {
+    animation: none;
+  }
+  .hover-lift {
+    transform: none !important;
+  }
+}

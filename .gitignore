@@ -1,0 +1,11 @@
+node_modules
+.next
+.env
+.env.local
+dist
+coverage
+uploads
+*.log
+backend/node_modules
+frontend/node_modules
+backend/uploads

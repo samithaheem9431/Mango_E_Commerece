@@ -15,7 +15,10 @@ export default function LoginPage() {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.post("/auth/login", form);
+      const { data } = await api.post("/auth/login", {
+        email: form.email.trim(),
+        password: form.password.trim()
+      });
       login(data.token, data.user);
       toast.success("Logged in");
       if (["admin", "superadmin"].includes(data.user.role)) {

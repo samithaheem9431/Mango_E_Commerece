@@ -29,11 +29,12 @@ router.post(
   async (req, res) => {
     const { email, password } = req.body;
     const safeEmail = String(email || "").trim().toLowerCase();
+    const safePassword = String(password || "").trim();
     try {
       const user = await User.findOne({ email: safeEmail });
       if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-      const valid = await bcrypt.compare(password, user.password);
+      const valid = await bcrypt.compare(safePassword, user.password);
       if (!valid) return res.status(401).json({ message: "Invalid credentials" });
 
       res.json({

@@ -93,22 +93,22 @@ export default function ShopByCategories() {
       <h2 className="page-title mb-8 text-center">Shop by Categories</h2>
 
       {isCarousel ? (
-        <div className="relative px-10 sm:px-12">
+        <div className="relative px-9 sm:px-12">
           <button
             type="button"
             onClick={() => scroll(-1)}
-            className="absolute left-0 top-[38%] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white"
+            className="absolute left-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
             aria-label="Previous categories"
           >
-            <ChevronLeft className="h-5 w-5 text-[#0b1a0b]" />
+            <ChevronLeft className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
           </button>
           <button
             type="button"
             onClick={() => scroll(1)}
-            className="absolute right-0 top-[38%] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white"
+            className="absolute right-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
             aria-label="Next categories"
           >
-            <ChevronRight className="h-5 w-5 text-[#0b1a0b]" />
+            <ChevronRight className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
           </button>
 
           <div

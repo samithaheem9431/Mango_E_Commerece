@@ -9,11 +9,14 @@ const helmet = require("helmet");
 const mongoSanitize = require("mongo-sanitize");
 const hpp = require("hpp");
 const connectDB = require("./config/db");
-const { ensureSuperAdmin } = require("./config/bootstrap");
+const { ensureSuperAdmin, migrateCategoryImages } = require("./config/bootstrap");
 const { apiLimiter, authLimiter, adminLimiter } = require("./middleware/security");
 
 dotenv.config();
-connectDB().then(() => ensureSuperAdmin());
+connectDB().then(async () => {
+  await ensureSuperAdmin();
+  await migrateCategoryImages();
+});
 
 const app = express();
 app.disable("x-powered-by");
@@ -48,8 +51,25 @@ app.use(apiLimiter);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (_, res) => res.json({ message: "Mango API is running" }));
+
+// Dev-only: test email config — POST /api/test-email  { "to": "someone@example.com" }
+if (process.env.NODE_ENV !== "production") {
+  const { testEmailConnection } = require("./utils/emailService");
+  app.post("/api/test-email", async (req, res) => {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ message: "Provide a 'to' email in the body" });
+    try {
+      await testEmailConnection(to);
+      res.json({ message: `Test email sent to ${to}` });
+    } catch (err) {
+      console.error("[Email Test] Error:", err);
+      res.status(500).json({ message: err.message, code: err.code });
+    }
+  });
+}
 app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/admin", adminLimiter, require("./routes/adminRoutes"));

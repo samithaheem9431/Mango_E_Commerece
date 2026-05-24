@@ -1,10 +1,9 @@
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { DM_Sans, Noto_Nastaliq_Urdu, Playfair_Display } from "next/font/google";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
+import ClientShell from "../components/ClientShell";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -30,9 +29,7 @@ export default function RootLayout({ children }) {
       <body className={`${playfair.variable} ${dmSans.variable} ${notoUrdu.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            <main className="container min-h-[70vh] py-6">{children}</main>
-            <Footer />
+            <ClientShell>{children}</ClientShell>
             <Toaster position="top-right" />
           </CartProvider>
         </AuthProvider>

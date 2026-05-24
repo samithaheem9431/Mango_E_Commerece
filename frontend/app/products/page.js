@@ -1,24 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import api from "../../lib/api";
 import ProductCard from "../../components/ProductCard";
 
-const categories = ["", "5KG Mango Box", "8KG Mango Box", "10KG Mango Box"];
+const ctrlBase =
+  "w-full rounded-xl border-2 border-green-700 bg-green-950 px-4 py-2.5 text-sm font-medium text-green-100 outline-none transition placeholder:text-green-400/60 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 hover:border-green-500";
 
-export default function ProductsPage() {
+function ProductsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [allCategories, setAllCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchProducts = async () => {
+  // Load categories once
+  useEffect(() => {
+    api.get("/categories").then(({ data }) => setAllCategories(data)).catch(() => {});
+  }, []);
+
+  // Sync URL → category state when navigating from home page
+  useEffect(() => {
+    const param = searchParams.get("category") ?? "";
+    setCategory(param);
+  }, [searchParams]);
+
+  const fetchProducts = async (cat = category) => {
     try {
       setError("");
       setLoading(true);
-      const { data } = await api.get("/products", { params: { search, category } });
+      const { data } = await api.get("/products", { params: { search, category: cat } });
       setProducts(data);
     } catch {
       setError("Unable to load products. Please try again.");
@@ -27,51 +44,102 @@ export default function ProductsPage() {
     }
   };
 
+  // Re-fetch whenever category changes (including from URL)
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(category);
   }, [category]);
 
+  const handleCategoryChange = (val) => {
+    setCategory(val);
+    // Keep URL in sync so the browser back button works
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("category", val);
+    else params.delete("category");
+    router.replace(`/products?${params.toString()}`, { scroll: false });
+  };
+
+  const minVariantPrice = (p) =>
+    Math.min(...(p.variants ?? []).map((v) => v.price), Infinity);
+
+  const totalStock = (p) =>
+    (p.variants ?? []).reduce((s, v) => s + v.stock, 0);
+
   const sortedProducts = [...products].sort((a, b) => {
-    if (sortBy === "priceLow") return a.price - b.price;
-    if (sortBy === "priceHigh") return b.price - a.price;
-    if (sortBy === "stockHigh") return b.stock - a.stock;
+    if (sortBy === "priceLow") return minVariantPrice(a) - minVariantPrice(b);
+    if (sortBy === "priceHigh") return minVariantPrice(b) - minVariantPrice(a);
+    if (sortBy === "stockHigh") return totalStock(b) - totalStock(a);
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
+  const activeCategoryName = allCategories.find((c) => c._id === category)?.name;
+
   return (
     <div>
-      <h1 className="mb-4 page-title">All Mango Products</h1>
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <h1 className="mb-1 page-title">All Mango Products</h1>
+      {activeCategoryName && (
+        <p className="mb-4 text-sm font-semibold text-amber-600">
+          Showing: {activeCategoryName}
+          <button
+            onClick={() => handleCategoryChange("")}
+            className="ml-2 text-green-700 underline hover:text-green-900"
+          >
+            Clear
+          </button>
+        </p>
+      )}
+
+      {/* ── Filter bar ── */}
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <input
-          className="input w-full"
-          placeholder="Search mango products"
+          className={ctrlBase}
+          placeholder="Search mango products…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && fetchProducts()}
         />
-        <select className="input w-full" value={category} onChange={(e) => setCategory(e.target.value)}>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c || "All Categories"}
+
+        <select
+          className={ctrlBase}
+          value={category}
+          onChange={(e) => handleCategoryChange(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {allCategories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
             </option>
           ))}
         </select>
-        <select className="input w-full" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+
+        <select
+          className={ctrlBase}
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
           <option value="newest">Newest</option>
           <option value="priceLow">Price: Low to High</option>
           <option value="priceHigh">Price: High to Low</option>
           <option value="stockHigh">Stock: High to Low</option>
         </select>
-        <button onClick={fetchProducts} className="btn-primary w-full">
+
+        <button
+          onClick={() => fetchProducts()}
+          className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-bold text-green-950 shadow transition hover:bg-amber-300 active:scale-95"
+        >
           Apply
         </button>
       </div>
 
       {loading ? (
-        <p>Loading products...</p>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-72 animate-pulse rounded-2xl bg-green-900/40" />
+          ))}
+        </div>
       ) : error ? (
-        <div className="card text-red-700">{error}</div>
-      ) : products.length === 0 ? (
-        <div className="card">No products found for selected filters.</div>
+        <div className="card text-red-400">{error}</div>
+      ) : sortedProducts.length === 0 ? (
+        <div className="card text-white/70">No products found for the selected filters.</div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sortedProducts.map((product, index) => (
@@ -86,5 +154,13 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsContent />
+    </Suspense>
   );
 }

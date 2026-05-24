@@ -9,6 +9,7 @@ const orderSchema = new mongoose.Schema(
         name: String,
         price: Number,
         quantity: Number,
+        boxSize: String,
         image: String
       }
     ],
@@ -18,6 +19,8 @@ const orderSchema = new mongoose.Schema(
       enum: ["Pending", "Confirmed", "Delivered", "Cancelled"],
       default: "Pending"
     },
+    customerName: { type: String, default: "Customer" },
+    customerEmail: { type: String, default: "" },
     shippingAddress: {
       address: String,
       city: String,

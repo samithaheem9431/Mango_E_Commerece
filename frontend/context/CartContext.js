@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import api from "../lib/api";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext({
@@ -36,27 +35,33 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart, isInitialized]);
 
-  const updateCartItem = (product, quantity) => {
+  // Each cart item: { product, quantity, boxSize, price }
+  // Items with same productId but different boxSize are separate entries
+  const updateCartItem = (product, quantity, boxSize, price) => {
     setCart((prev) => {
       const items = [...prev.items];
-      const idx = items.findIndex((i) => i.product._id === product._id);
+      const idx = items.findIndex(
+        (i) => i.product._id === product._id && i.boxSize === boxSize
+      );
       if (idx >= 0) {
         if (quantity <= 0) {
           items.splice(idx, 1);
         } else {
-          items[idx] = { ...items[idx], quantity };
+          items[idx] = { ...items[idx], quantity, price };
         }
       } else if (quantity > 0) {
-        items.push({ product, quantity });
+        items.push({ product, quantity, boxSize, price });
       }
       return { ...prev, items };
     });
   };
 
-  const removeItem = (productId) => {
+  const removeItem = (productId, boxSize) => {
     setCart((prev) => ({
       ...prev,
-      items: prev.items.filter((i) => i.product._id !== productId),
+      items: prev.items.filter(
+        (i) => !(i.product._id === productId && i.boxSize === boxSize)
+      ),
     }));
   };
 
@@ -65,7 +70,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const total = useMemo(
-    () => (cart?.items ?? []).reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0),
+    () => (cart?.items ?? []).reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0),
     [cart]
   );
 

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import WaveDivider from "./WaveDivider";
 
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-brand-leaf/20 bg-brand-bark text-brand-mint">
+    <footer className="mt-12 bg-brand-bark text-brand-mint">
+      <WaveDivider fill="#1a2e05" flip height={48} />
       <div className="container grid gap-8 py-10 md:grid-cols-3">
         <div className="text-center md:text-left">
           <div className="mb-3 flex items-center justify-center gap-3 md:justify-start">

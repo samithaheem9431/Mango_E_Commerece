@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Category = require("../models/Category");
+const { normalizeCategoryImages } = require("../utils/categoryImages");
 
 const ensureSuperAdmin = async () => {
   const email = String(process.env.SUPER_ADMIN_EMAIL || "").trim().toLowerCase();
@@ -35,4 +37,12 @@ const ensureSuperAdmin = async () => {
   console.log("Super admin created from environment");
 };
 
-module.exports = { ensureSuperAdmin };
+const migrateCategoryImages = async () => {
+  const rows = await Category.find().select("_id image").lean();
+  if (!rows.some((c) => c.image?.startsWith("data:"))) return;
+  console.log("Migrating category images from database to disk…");
+  await normalizeCategoryImages(rows);
+  console.log("Category images migrated.");
+};
+
+module.exports = { ensureSuperAdmin, migrateCategoryImages };

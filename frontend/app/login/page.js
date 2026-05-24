@@ -27,7 +27,13 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      if (!error.response) {
+        toast.error("Cannot reach server. Start the backend (port 5000) and try again.");
+        return;
+      }
+      const msg = error.response?.data?.message;
+      const details = error.response?.data?.errors?.[0]?.message;
+      toast.error(details || msg || "Login failed");
     }
   };
 

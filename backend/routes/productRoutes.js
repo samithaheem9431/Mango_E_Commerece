@@ -25,48 +25,75 @@ router.get("/", async (req, res) => {
   const query = {};
   if (search) query.name = { $regex: search, $options: "i" };
   if (category) query.category = category;
-  const products = await Product.find(query).sort({ createdAt: -1 });
+  const products = await Product.find(query)
+    .populate("category", "name icon tagline")
+    .sort({ createdAt: -1 });
   res.json(products);
 });
 
 router.get("/featured", async (_, res) => {
-  const products = await Product.find().sort({ createdAt: -1 }).limit(6);
+  const products = await Product.find()
+    .populate("category", "name icon tagline")
+    .sort({ createdAt: -1 })
+    .limit(6);
   res.json(products);
 });
 
 router.post("/", protect, adminOnly, upload.single("image"), async (req, res) => {
+  let variants = [];
+  try {
+    variants = JSON.parse(req.body.variants || "[]");
+  } catch {
+    return res.status(400).json({ message: "Invalid variants format" });
+  }
+
   const payload = {
-    ...req.body,
-    price: Number(req.body.price),
-    stock: Number(req.body.stock),
+    name: req.body.name,
+    category: req.body.category,
+    description: req.body.description,
+    variants,
     image: req.file ? toDataUri(req.file) : ""
   };
+
   const product = await Product.create(payload);
   await logAudit({
     actor: req.user._id,
     action: "create_product",
     targetType: "product",
     targetId: product._id,
-    details: { name: product.name, stock: product.stock, price: product.price }
+    details: { name: product.name, variants: product.variants.length }
   });
   res.status(201).json(product);
 });
 
 router.put("/:id", protect, adminOnly, upload.single("image"), async (req, res) => {
+  let variants;
+  if (req.body.variants !== undefined) {
+    try {
+      variants = JSON.parse(req.body.variants);
+    } catch {
+      return res.status(400).json({ message: "Invalid variants format" });
+    }
+  }
+
   const update = {
-    ...req.body,
-    price: Number(req.body.price),
-    stock: Number(req.body.stock)
+    name: req.body.name,
+    category: req.body.category,
+    description: req.body.description,
+    ...(variants !== undefined && { variants })
   };
   if (req.file) update.image = toDataUri(req.file);
-  const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true });
+
+  const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true })
+    .populate("category", "name icon tagline");
+
   if (product) {
     await logAudit({
       actor: req.user._id,
       action: "update_product",
       targetType: "product",
       targetId: product._id,
-      details: { name: product.name, stock: product.stock, price: product.price }
+      details: { name: product.name }
     });
   }
   res.json(product);

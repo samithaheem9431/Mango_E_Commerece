@@ -14,9 +14,11 @@ export default function AdminLayout({ children }) {
   }, [user, loading, router]);
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-start">
+    <div className="flex h-screen overflow-hidden bg-slate-100">
       <AdminSidebar />
-      <div className="w-full flex-1">{children}</div>
+      <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        {children}
+      </main>
     </div>
   );
 }

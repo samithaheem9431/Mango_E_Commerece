@@ -1,7 +1,5 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-const Category = require("../models/Category");
-const { normalizeCategoryImages } = require("../utils/categoryImages");
 
 const ensureSuperAdmin = async () => {
   const email = String(process.env.SUPER_ADMIN_EMAIL || "").trim().toLowerCase();
@@ -37,12 +35,8 @@ const ensureSuperAdmin = async () => {
   console.log("Super admin created from environment");
 };
 
-const migrateCategoryImages = async () => {
-  const rows = await Category.find().select("_id image").lean();
-  if (!rows.some((c) => c.image?.startsWith("data:"))) return;
-  console.log("Migrating category images from database to disk…");
-  await normalizeCategoryImages(rows);
-  console.log("Category images migrated.");
-};
+// Migration no longer needed — category images are now stored as base64 in MongoDB
+// (same approach as products), so no disk files are involved.
+const migrateCategoryImages = async () => {};
 
 module.exports = { ensureSuperAdmin, migrateCategoryImages };

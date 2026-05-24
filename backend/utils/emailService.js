@@ -1,13 +1,15 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
+
+function guardEnv() {
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+    console.warn("[Email] RESEND_API_KEY / RESEND_FROM_EMAIL not set — skipping email.");
+    return false;
+  }
+  return true;
 }
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
@@ -257,61 +259,56 @@ function buildDeliveredHTML({ customerName, orderId, items, subtotal, deliveryFe
 
 // ── Send functions ────────────────────────────────────────────────────────────
 
-function guardEnv() {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn("[Email] EMAIL_USER / EMAIL_PASS not set — skipping email.");
-    return false;
-  }
-  return true;
-}
-
 async function sendOrderConfirmed({ customerName, customerEmail, orderId, items, subtotal, deliveryFee, grandTotal, shippingAddress }) {
   if (!guardEnv()) return;
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"Aam-e-Khaas 🥭" <${process.env.EMAIL_USER}>`,
+  const resend = getResend();
+  const { error } = await resend.emails.send({
+    from: `Aam-e-Khaas <${process.env.RESEND_FROM_EMAIL}>`,
     to: customerEmail,
-    subject: `✅ Order Confirmed — Tracking ID #${String(orderId).toUpperCase()}`,
+    subject: `Order Confirmed - Tracking ID #${String(orderId).toUpperCase()}`,
     html: buildConfirmedHTML({ customerName, orderId, items, subtotal, deliveryFee, grandTotal, shippingAddress })
   });
+  if (error) throw new Error(error.message);
   console.log(`[Email] Confirmation sent to ${customerEmail}`);
 }
 
 async function sendOrderCancelled({ customerName, customerEmail, orderId, items, subtotal, deliveryFee, grandTotal }) {
   if (!guardEnv()) return;
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"Aam-e-Khaas 🥭" <${process.env.EMAIL_USER}>`,
+  const resend = getResend();
+  const { error } = await resend.emails.send({
+    from: `Aam-e-Khaas <${process.env.RESEND_FROM_EMAIL}>`,
     to: customerEmail,
-    subject: `❌ Order Cancelled — #${String(orderId).toUpperCase()}`,
+    subject: `Order Cancelled - #${String(orderId).toUpperCase()}`,
     html: buildCancelledHTML({ customerName, orderId, items, subtotal, deliveryFee, grandTotal })
   });
+  if (error) throw new Error(error.message);
   console.log(`[Email] Cancellation sent to ${customerEmail}`);
 }
 
 async function sendOrderDelivered({ customerName, customerEmail, orderId, items, subtotal, deliveryFee, grandTotal }) {
   if (!guardEnv()) return;
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"Aam-e-Khaas 🥭" <${process.env.EMAIL_USER}>`,
+  const resend = getResend();
+  const { error } = await resend.emails.send({
+    from: `Aam-e-Khaas <${process.env.RESEND_FROM_EMAIL}>`,
     to: customerEmail,
-    subject: `📦 Order Delivered — #${String(orderId).toUpperCase()}`,
+    subject: `Order Delivered - #${String(orderId).toUpperCase()}`,
     html: buildDeliveredHTML({ customerName, orderId, items, subtotal, deliveryFee, grandTotal })
   });
+  if (error) throw new Error(error.message);
   console.log(`[Email] Delivery notice sent to ${customerEmail}`);
 }
 
 async function testEmailConnection(toEmail) {
-  const transporter = createTransporter();
-  await transporter.verify();
-  console.log("[Email] SMTP connection verified ✓");
-  await transporter.sendMail({
-    from: `"Aam-e-Khaas 🥭" <${process.env.EMAIL_USER}>`,
+  if (!guardEnv()) return;
+  const resend = getResend();
+  const { error } = await resend.emails.send({
+    from: `Aam-e-Khaas <${process.env.RESEND_FROM_EMAIL}>`,
     to: toEmail,
-    subject: "✅ Aam-e-Khaas — Email Test",
-    html: "<h2 style='color:#15803d'>Email is working! 🥭</h2><p>Your Nodemailer setup is configured correctly.</p>"
+    subject: "Email Test - Aam-e-Khaas",
+    html: "<h2 style='color:#15803d'>Email is working! 🥭</h2><p>Your Resend setup is configured correctly.</p>"
   });
-  console.log(`[Email] Test email sent to ${toEmail} ✓`);
+  if (error) throw new Error(error.message);
+  console.log(`[Email] Test email sent to ${toEmail}`);
 }
 
 module.exports = { sendOrderConfirmed, sendOrderCancelled, sendOrderDelivered, testEmailConnection };

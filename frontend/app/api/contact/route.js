@@ -15,7 +15,7 @@ export async function POST(req) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "Mango Luxury <onboarding@resend.dev>",
+      from: `Mango Luxury <${process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev"}>`,
       to: process.env.CONTACT_RECEIVER_EMAIL || "delivered@resend.dev",
       subject: `New Luxury Inquiry: ${inquiryType} from ${name}`,
       html: `

@@ -35,7 +35,7 @@ function CategoryCard({ category }) {
               {category.name}
             </h3>
             {category.tagline && (
-              <p className="mt-2 max-w-[200px] font-heading text-xs leading-relaxed text-white/75 sm:text-sm">
+              <p className="mt-2 w-full font-heading text-xs leading-relaxed text-white/75 sm:text-sm">
                 {category.tagline}
               </p>
             )}
@@ -47,7 +47,7 @@ function CategoryCard({ category }) {
       </Link>
       <Link
         href={href}
-        className="mt-3 inline-flex items-center gap-1 font-heading text-base text-[#0b1a0b] transition hover:text-[#5c4a1a]"
+        className="mt-2 inline-flex items-center gap-1 font-heading text-sm text-[#0b1a0b] transition hover:text-[#5c4a1a] sm:mt-3 sm:text-base"
       >
         {category.name} <span aria-hidden>→</span>
       </Link>

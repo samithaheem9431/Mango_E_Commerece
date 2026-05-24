@@ -117,8 +117,8 @@ export default function HomePage() {
 
       {/* ── Hero Carousel (full-bleed) ── */}
       <section
-        className="relative -mt-6 overflow-hidden"
-        style={{ width: "100vw", marginLeft: "calc(-50vw + 50%)", height: "540px" }}
+        className="hero-carousel relative -mt-6 overflow-hidden"
+        style={{ width: "100vw", marginLeft: "calc(-50vw + 50%)" }}
       >
         {heroSlides.map((slide, i) => (
           <div
@@ -136,7 +136,7 @@ export default function HomePage() {
             )}
 
             {/* Content */}
-            <div className={`absolute inset-0 flex flex-col pl-10 sm:pl-16 md:pl-24 ${slide.contentAlign === "top" ? "justify-start pt-12 sm:pt-16" : "justify-end pb-14"}`}>
+            <div className={`absolute inset-0 flex flex-col pl-5 sm:pl-14 md:pl-24 ${slide.contentAlign === "top" ? "justify-start pt-8 sm:pt-16" : "justify-end pb-10 sm:pb-14"}`}>
 
               {/* Text block — only shown when slide has a title */}
               {slide.title && (
@@ -146,13 +146,13 @@ export default function HomePage() {
                       {slide.badge}
                     </span>
                   )}
-                  <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
+                  <h1 className="text-xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
                     {slide.title}<br />
                     <span className="text-brand-sun drop-shadow-[0_0_20px_rgba(253,224,71,0.55)]">
                       {slide.highlight}
                     </span>
                   </h1>
-                  <p className="mt-3 text-sm text-white/80 sm:text-base">{slide.subtitle}</p>
+                  <p className="mt-2 text-xs text-white/80 sm:mt-3 sm:text-base">{slide.subtitle}</p>
                 </div>
               )}
 
@@ -161,15 +161,15 @@ export default function HomePage() {
                 <div className="flex flex-wrap gap-3">
                   {slide.twoButtons ? (
                     <>
-                      <Link href="/products" className="rounded-xl bg-brand-bark px-7 py-3 font-bold text-brand-sun shadow-lg transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(253,224,71,0.4)]">
+                      <Link href="/products" className="rounded-xl bg-brand-bark px-4 py-2 text-sm font-bold text-brand-sun shadow-lg transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(253,224,71,0.4)] sm:px-7 sm:py-3 sm:text-base">
                         Shop Now
                       </Link>
-                      <Link href="/orders" className="rounded-xl border border-white/40 bg-black/25 px-7 py-3 font-semibold text-white backdrop-blur transition hover:bg-black/40">
+                      <Link href="/orders" className="rounded-xl border border-white/40 bg-black/25 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/40 sm:px-7 sm:py-3 sm:text-base">
                         Track My Order
                       </Link>
                     </>
                   ) : (
-                    <Link href="/products" className="rounded-xl bg-brand-bark px-8 py-3 font-bold text-brand-sun shadow-lg transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(253,224,71,0.4)]">
+                    <Link href="/products" className="rounded-xl bg-brand-bark px-5 py-2 text-sm font-bold text-brand-sun shadow-lg transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(253,224,71,0.4)] sm:px-8 sm:py-3 sm:text-base">
                       Order Now
                     </Link>
                   )}

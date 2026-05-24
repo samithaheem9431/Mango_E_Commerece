@@ -92,8 +92,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .page-title {
-  @apply text-3xl font-semibold tracking-tight md:text-4xl;
+  @apply text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl;
   color: #0b1a0b;
+}
+
+/* ── Hero carousel responsive height ── */
+.hero-carousel {
+  height: 300px;
+}
+
+@media (min-width: 640px) {
+  .hero-carousel { height: 420px; }
+}
+
+@media (min-width: 1024px) {
+  .hero-carousel { height: 540px; }
 }
 
 .subtle-text {
@@ -159,9 +172,16 @@ h1, h2, h3, h4, h5, h6 {
 .testimonial-card {
   position: relative;
   flex-shrink: 0;
-  width: 18rem;
-  margin: 0 0.625rem;
+  width: 15rem;
+  margin: 0 0.5rem;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+@media (min-width: 640px) {
+  .testimonial-card {
+    width: 18rem;
+    margin: 0 0.625rem;
+  }
 }
 
 .testimonial-card:hover {

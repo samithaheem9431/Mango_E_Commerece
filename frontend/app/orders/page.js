@@ -34,7 +34,9 @@ export default function MyOrdersPage() {
       {orders.map((order) => (
         <div key={order._id} className="card">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-semibold">Order ID: {order._id}</p>
+            <p className="font-mono text-xs font-semibold break-all text-brand-bark sm:text-sm">
+              #{String(order._id).toUpperCase()}
+            </p>
             <StatusBadge status={order.status} />
           </div>
           <p className="mt-2">Total: Rs {order.totalAmount}</p>

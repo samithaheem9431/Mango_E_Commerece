@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
@@ -14,13 +16,34 @@ export default function Navbar() {
   const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isAdmin = ["admin", "superadmin"].includes(user?.role);
   const adminHref = "/admin/dashboard";
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const close = () => setMobileOpen(false);
 
   const navLink = (href, label, exact = false) => {
     const active = exact ? pathname === href : pathname.startsWith(href);
     return (
       <Link
         href={href}
+        onClick={close}
         className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors
+          ${active
+            ? "bg-brand-sun/15 font-semibold text-brand-sun"
+            : "text-brand-mint/80 hover:bg-brand-mint/10 hover:text-brand-mint"
+          }`}
+      >
+        {label}
+      </Link>
+    );
+  };
+
+  const mobileNavLink = (href, label, exact = false) => {
+    const active = exact ? pathname === href : pathname.startsWith(href);
+    return (
+      <Link
+        href={href}
+        onClick={close}
+        className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors
           ${active
             ? "bg-brand-sun/15 font-semibold text-brand-sun"
             : "text-brand-mint/80 hover:bg-brand-mint/10 hover:text-brand-mint"
@@ -34,17 +57,12 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-forest/40 bg-brand-forest">
       <nav className="container flex items-center py-3">
-        {/* ── Logo (left) ── */}
+
+        {/* ── Logo ── */}
         <div className="flex flex-1">
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" onClick={close} className="flex items-center gap-3 group">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-sun transition-transform group-hover:scale-105">
-              <Image
-                src="/logo.svg"
-                alt="aam e khaas logo"
-                width={26}
-                height={26}
-                priority
-              />
+              <Image src="/logo.svg" alt="aam e khaas logo" width={26} height={26} priority />
             </div>
             <div>
               <p className="font-heading text-lg font-semibold leading-tight text-brand-sun">
@@ -57,8 +75,8 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* ── Center nav links ── */}
-        <div className="flex items-center gap-6">
+        {/* ── Center nav links (desktop only) ── */}
+        <div className="hidden md:flex items-center gap-1">
           {navLink("/", "Home", true)}
           {navLink("/products", "Products")}
           {!isAdmin && navLink("/track", "📦 Track Order")}
@@ -67,6 +85,7 @@ export default function Navbar() {
           {isAdmin && (
             <Link
               href={adminHref}
+              onClick={close}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors
                 ${pathname.startsWith("/admin")
                   ? "bg-brand-sun/15 font-semibold text-brand-sun"
@@ -78,9 +97,8 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* ── Right actions ── */}
-        <div className="flex flex-1 items-center justify-end gap-1">
-          {/* Cart pill */}
+        {/* ── Right actions (desktop only) ── */}
+        <div className="hidden md:flex flex-1 items-center justify-end gap-1">
           {!isAdmin && (
             <Link
               href="/cart"
@@ -95,8 +113,6 @@ export default function Navbar() {
               )}
             </Link>
           )}
-
-          {/* Logout */}
           {user && (
             <button
               onClick={logout}
@@ -106,7 +122,65 @@ export default function Navbar() {
             </button>
           )}
         </div>
+
+        {/* ── Mobile: cart icon + hamburger ── */}
+        <div className="flex md:hidden items-center gap-2">
+          {!isAdmin && (
+            <Link
+              href="/cart"
+              onClick={close}
+              className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-brand-sun text-brand-forest"
+              aria-label="Cart"
+            >
+              <span>🛒</span>
+              {count > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-forest text-[10px] font-bold text-brand-sun">
+                  {count}
+                </span>
+              )}
+            </Link>
+          )}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-brand-mint/80 hover:bg-brand-mint/10"
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </nav>
+
+      {/* ── Mobile dropdown menu ── */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-brand-forest/40 bg-brand-forest px-2 pb-3 pt-1">
+          {mobileNavLink("/", "Home", true)}
+          {mobileNavLink("/products", "Products")}
+          {!isAdmin && mobileNavLink("/track", "📦 Track Order")}
+          {!isAdmin && mobileNavLink("/contact", "Contact Us")}
+          {user && !isAdmin && mobileNavLink("/orders", "My Orders")}
+          {isAdmin && (
+            <Link
+              href={adminHref}
+              onClick={close}
+              className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors
+                ${pathname.startsWith("/admin")
+                  ? "bg-brand-sun/15 font-semibold text-brand-sun"
+                  : "text-brand-sun hover:bg-brand-sun/10"
+                }`}
+            >
+              🛡️ Admin Panel
+            </Link>
+          )}
+          {user && (
+            <button
+              onClick={() => { close(); logout(); }}
+              className="mt-1 w-full rounded-lg border border-brand-mint/20 px-4 py-3 text-left text-sm font-medium text-brand-mint/70 transition-colors hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-300"
+            >
+              Logout
+            </button>
+          )}
+        </div>
+      )}
     </header>
   );
 }

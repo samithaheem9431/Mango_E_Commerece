@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Leaf, Sparkles, Crown, Gift } from "lucide-react";
-import { fetchCategories, getCachedCategories } from "../lib/categoriesCache";
+import api from "../lib/api";
 import { categoryImageSrc } from "../lib/categoryImage";
 
 const iconMap = {
@@ -62,19 +62,10 @@ export default function ShopByCategories() {
 
   useEffect(() => {
     let cancelled = false;
-
-    const cached = getCachedCategories();
-    if (cached?.length) {
-      setCategories(cached);
-      return;
-    }
-
-    fetchCategories().then((data) => {
+    api.get("/categories").then(({ data }) => {
       if (!cancelled && data?.length) setCategories(data);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const scroll = (direction) => {

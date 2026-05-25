@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "../lib/api";
 import ProductCard from "../components/ProductCard";
@@ -96,8 +97,17 @@ const heroSlides = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    router.push(`/products?search=${encodeURIComponent(q)}`);
+  };
 
   useEffect(() => {
     api.get("/products/featured")
@@ -202,6 +212,28 @@ export default function HomePage() {
             <span className="mt-1 text-sm text-white/80">{label}</span>
           </div>
         ))}
+      </section>
+
+      {/* ── Search Bar ── */}
+      <section>
+        <form onSubmit={handleSearch} className="relative mx-auto max-w-2xl">
+          <div className="flex items-center overflow-hidden rounded-2xl border-2 border-brand-sun/30 bg-[rgba(10,40,20,0.92)] shadow-[0_0_30px_rgba(0,0,0,0.25)] transition-colors focus-within:border-brand-sun">
+            <span className="pl-4 text-xl">🔍</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search mangoes… e.g. Chaunsa, Sindhri, 8KG Box"
+              className="flex-1 bg-transparent px-3 py-3.5 text-sm text-brand-mint placeholder:text-brand-mint/40 outline-none"
+            />
+            <button
+              type="submit"
+              className="m-1.5 rounded-xl bg-brand-sun px-5 py-2.5 text-sm font-bold text-brand-forest transition hover:bg-brand-gold active:scale-95"
+            >
+              Search
+            </button>
+          </div>
+        </form>
       </section>
 
       {/* ── Shop by Categories ── */}

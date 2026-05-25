@@ -14,7 +14,7 @@ function ProductsContent() {
 
   const [allCategories, setAllCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(false);
@@ -25,17 +25,11 @@ function ProductsContent() {
     api.get("/categories").then(({ data }) => setAllCategories(data)).catch(() => {});
   }, []);
 
-  // Sync URL → category state when navigating from home page
-  useEffect(() => {
-    const param = searchParams.get("category") ?? "";
-    setCategory(param);
-  }, [searchParams]);
-
-  const fetchProducts = async (cat = category) => {
+  const fetchProducts = async (cat = category, q = search) => {
     try {
       setError("");
       setLoading(true);
-      const { data } = await api.get("/products", { params: { search, category: cat } });
+      const { data } = await api.get("/products", { params: { search: q, category: cat } });
       setProducts(data);
     } catch {
       setError("Unable to load products. Please try again.");
@@ -44,10 +38,14 @@ function ProductsContent() {
     }
   };
 
-  // Re-fetch whenever category changes (including from URL)
+  // Sync URL params → state and fetch whenever URL changes (e.g. navigating from landing search)
   useEffect(() => {
-    fetchProducts(category);
-  }, [category]);
+    const catParam = searchParams.get("category") ?? "";
+    const searchParam = searchParams.get("search") ?? "";
+    setCategory(catParam);
+    setSearch(searchParam);
+    fetchProducts(catParam, searchParam);
+  }, [searchParams]);
 
   const handleCategoryChange = (val) => {
     setCategory(val);

@@ -45,7 +45,8 @@ export default function AdminCategoriesPage() {
 
     try {
       if (editingId) {
-        await api.put(`/categories/${editingId}`, fd);
+        const { data: updated } = await api.put(`/categories/${editingId}`, fd);
+        setCategories((prev) => prev.map((c) => (c._id === editingId ? updated : c)));
         toast.success("Category updated");
       } else {
         if (!image) {
@@ -54,12 +55,12 @@ export default function AdminCategoriesPage() {
         }
         await api.post("/categories", fd);
         toast.success("Category created");
+        await loadCategories();
       }
       setForm(defaultForm);
       setImage(null);
       setEditingId("");
       invalidateCategoriesCache();
-      loadCategories();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
     }

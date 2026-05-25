@@ -240,14 +240,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Mobile: 1 large card + peek of next.
-   Card = 82% of container. The trailing 18% padding ensures the
-   last card's snap-start point is always reachable (no empty overscroll). */
+/* Mobile: 1 large card + peek of next. Card = 82%, next card peeks naturally. */
 @media (max-width: 639px) {
-  .category-carousel {
-    padding-right: 18%;
-  }
-
   .category-carousel-slide {
     flex: 0 0 82%;
     width: 82%;

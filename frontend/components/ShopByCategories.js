@@ -57,6 +57,8 @@ function CategoryCard({ category }) {
 
 export default function ShopByCategories() {
   const [categories, setCategories] = useState([]);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const scrollRef = useRef(null);
   const isCarousel = categories.length > 4;
 
@@ -67,6 +69,26 @@ export default function ShopByCategories() {
     });
     return () => { cancelled = true; };
   }, []);
+
+  const updateArrows = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !isCarousel) return;
+    updateArrows();
+    el.addEventListener("scroll", updateArrows, { passive: true });
+    const ro = new ResizeObserver(updateArrows);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      ro.disconnect();
+    };
+  }, [isCarousel, categories]);
 
   const scroll = (direction) => {
     const el = scrollRef.current;
@@ -85,22 +107,26 @@ export default function ShopByCategories() {
 
       {isCarousel ? (
         <div className="relative px-9 sm:px-12">
-          <button
-            type="button"
-            onClick={() => scroll(-1)}
-            className="absolute left-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
-            aria-label="Previous categories"
-          >
-            <ChevronLeft className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scroll(1)}
-            className="absolute right-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
-            aria-label="Next categories"
-          >
-            <ChevronRight className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
-          </button>
+          {canScrollLeft && (
+            <button
+              type="button"
+              onClick={() => scroll(-1)}
+              className="absolute left-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
+              aria-label="Previous categories"
+            >
+              <ChevronLeft className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
+            </button>
+          )}
+          {canScrollRight && (
+            <button
+              type="button"
+              onClick={() => scroll(1)}
+              className="absolute right-0 top-[38%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#0b1a0b]/15 bg-white/95 shadow-md transition hover:bg-white sm:h-10 sm:w-10"
+              aria-label="Next categories"
+            >
+              <ChevronRight className="h-4 w-4 text-[#0b1a0b] sm:h-5 sm:w-5" />
+            </button>
+          )}
 
           <div
             ref={scrollRef}

@@ -58,6 +58,15 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-brand-forest/40 bg-brand-forest">
       <nav className="container flex items-center py-3">
 
+        {/* ── Mobile: hamburger (left) ── */}
+        <button
+          onClick={() => setMobileOpen((v) => !v)}
+          className="flex md:hidden h-9 w-9 items-center justify-center rounded-lg text-brand-mint/80 hover:bg-brand-mint/10 mr-2 flex-shrink-0"
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+
         {/* ── Logo ── */}
         <div className="flex flex-1">
           <Link href="/" onClick={close} className="flex items-center gap-3 group">
@@ -123,8 +132,8 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* ── Mobile: cart icon + hamburger ── */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* ── Mobile: cart icon (right) ── */}
+        <div className="flex md:hidden items-center">
           {!isAdmin && (
             <Link
               href="/cart"
@@ -140,13 +149,6 @@ export default function Navbar() {
               )}
             </Link>
           )}
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-brand-mint/80 hover:bg-brand-mint/10"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
       </nav>
 

@@ -204,23 +204,6 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* ── Why Choose Us ── */}
-      <section>
-        <h2 className="page-title mb-2 text-center">Why Choose aam e khaas?</h2>
-        <p className="mb-8 text-center text-green-900/70">We take pride in bringing you the finest mangoes of the season.</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {whyUs.map(({ icon, title, desc }) => (
-            <div key={title} className="card hover-lift flex flex-col items-center gap-3 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-sun/15 text-3xl ring-1 ring-brand-sun/25">
-                {icon}
-              </div>
-              <h3 className="font-semibold text-brand-sun">{title}</h3>
-              <p className="text-sm text-white/80">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── Shop by Categories ── */}
       <ShopByCategories />
 
@@ -238,6 +221,23 @@ export default function HomePage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Why Choose Us ── */}
+      <section>
+        <h2 className="page-title mb-2 text-center">Why Choose aam e khaas?</h2>
+        <p className="mb-8 text-center text-green-900/70">We take pride in bringing you the finest mangoes of the season.</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {whyUs.map(({ icon, title, desc }) => (
+            <div key={title} className="card hover-lift flex flex-col items-center gap-3 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-sun/15 text-3xl ring-1 ring-brand-sun/25">
+                {icon}
+              </div>
+              <h3 className="font-semibold text-brand-sun">{title}</h3>
+              <p className="text-sm text-white/80">{desc}</p>
+            </div>
           ))}
         </div>
       </section>

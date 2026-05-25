@@ -4,10 +4,16 @@ import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WaveDivider from "./WaveDivider";
+import WhatsAppFloat from "./WhatsAppFloat";
 
 export default function ClientShell({ children }) {
   const path = usePathname();
   const isAdmin = path?.startsWith("/admin");
+  const showWhatsApp =
+    path === "/" ||
+    path?.startsWith("/products") ||
+    path?.startsWith("/contact") ||
+    path?.startsWith("/track");
 
   if (isAdmin) {
     return <div className="min-h-screen bg-slate-100">{children}</div>;
@@ -35,6 +41,7 @@ export default function ClientShell({ children }) {
         </div>
       </div>
       <main className="container min-h-[70vh] py-6">{children}</main>
+      {showWhatsApp && <WhatsAppFloat />}
       <WaveDivider fill="#1a2e05" flip height={48} />
       <Footer />
     </>

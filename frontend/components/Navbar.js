@@ -70,8 +70,8 @@ export default function Navbar() {
         {/* ── Logo ── */}
         <div className="flex flex-1">
           <Link href="/" onClick={close} className="flex items-center gap-3 group">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-sun transition-transform group-hover:scale-105">
-              <Image src="/logo.svg" alt="aam e khaas logo" width={26} height={26} priority />
+            <div className="flex-shrink-0 transition-transform group-hover:scale-105">
+              <Image src="/New_logo.png" alt="aam e khaas logo" width={48} height={48} priority className="rounded-full" />
             </div>
             <div>
               <p className="font-heading text-lg font-semibold leading-tight text-brand-sun">

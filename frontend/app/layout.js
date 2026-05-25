@@ -23,6 +23,14 @@ const notoUrdu = Noto_Nastaliq_Urdu({
   variable: "--font-urdu"
 });
 
+export const metadata = {
+  icons: {
+    icon: "/New_logo.png",
+    shortcut: "/New_logo.png",
+    apple: "/New_logo.png",
+  },
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

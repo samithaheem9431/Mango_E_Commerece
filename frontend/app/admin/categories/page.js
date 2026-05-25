@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import api from "../../../lib/api";
-import {
-  fetchCategories,
-  getCachedCategories,
-  invalidateCategoriesCache,
-} from "../../../lib/categoriesCache";
+import { invalidateCategoriesCache } from "../../../lib/categoriesCache";
 import { categoryImageSrc } from "../../../lib/categoryImage";
 import { Pencil, Trash2, Plus, Leaf, Sparkles, Crown, Gift } from "lucide-react";
 
@@ -32,17 +28,12 @@ export default function AdminCategoriesPage() {
   const [editingId, setEditingId] = useState("");
   const [search, setSearch] = useState("");
 
-  const loadCategories = async (force = false) => {
-    const data = await fetchCategories({ force });
+  const loadCategories = async () => {
+    const { data } = await api.get("/categories");
     setCategories(data);
   };
 
   useEffect(() => {
-    const cached = getCachedCategories();
-    if (cached?.length) {
-      setCategories(cached);
-      return;
-    }
     loadCategories();
   }, []);
 
@@ -68,7 +59,7 @@ export default function AdminCategoriesPage() {
       setImage(null);
       setEditingId("");
       invalidateCategoriesCache();
-      loadCategories(true);
+      loadCategories();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
@@ -91,7 +82,7 @@ export default function AdminCategoriesPage() {
     await api.delete(`/categories/${id}`);
     toast.success("Category deleted");
     invalidateCategoriesCache();
-    loadCategories(true);
+    loadCategories();
   };
 
   const filtered = categories.filter((c) =>

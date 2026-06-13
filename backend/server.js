@@ -67,6 +67,51 @@ if (process.env.NODE_ENV !== "production") {
     }
   });
 }
+const { sendNewOrderAdminNotification } = require("./utils/emailService");
+app.get("/api/test-admin-email", async (req, res) => {
+  try {
+    const testPayload = {
+      orderId: "648f12345678901234567890",
+      items: [
+        { name: "Test Chaunsa Mango Box", price: 2500, quantity: 2, boxSize: "10KG" }
+      ],
+      subtotal: 5000,
+      deliveryFee: 450,
+      grandTotal: 5450,
+      shippingAddress: {
+        address: "Model Town, Street 5, House 24",
+        city: "Multan",
+        phone: "0300-1234567"
+      },
+      customerName: "Samitha Heem Test",
+      customerEmail: "ammekhaas@gmail.com",
+      riderNotes: "Rider notes test: Ring bell twice."
+    };
+    await sendNewOrderAdminNotification(testPayload);
+    res.json({
+      success: true,
+      message: "Test email successfully sent to admin!",
+      config: {
+        RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+        ORDER_RECEIVER_EMAIL: process.env.ORDER_RECEIVER_EMAIL || "ammekhaas@gmail.com",
+        HAS_API_KEY: !!process.env.RESEND_API_KEY
+      }
+    });
+  } catch (err) {
+    console.error("[Email Debug Route] Failed to send admin email:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send email",
+      error: err.message,
+      config: {
+        RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+        ORDER_RECEIVER_EMAIL: process.env.ORDER_RECEIVER_EMAIL || "ammekhaas@gmail.com",
+        HAS_API_KEY: !!process.env.RESEND_API_KEY
+      }
+    });
+  }
+});
+
 app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));

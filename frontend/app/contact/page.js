@@ -94,7 +94,7 @@ export default function ContactPage() {
           >
             <div>
               <h3 className="font-heading text-2xl text-luxury-gold-light sm:text-3xl">
-                Elite Concierge
+                Royal Access
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-slate-400 sm:text-base">
                 Our specialists are ready to facilitate your journey into the world of premium mangoes.
@@ -105,18 +105,18 @@ export default function ContactPage() {
             <div className="flex flex-col gap-5">
               <ContactInfoItem
                 icon={<Mail className="h-5 w-5 sm:h-6 sm:w-6" />}
-                title="Electronic Correspondence"
-                value="concierge@luxurymango.com"
+                title="Email Address"
+                value="ammekhaas@gmail.com"
               />
               <ContactInfoItem
                 icon={<Phone className="h-5 w-5 sm:h-6 sm:w-6" />}
                 title="Direct WhatsApp Line"
-                value="+92 300 1234567"
+                value="+92 326 4488496"
               />
               <ContactInfoItem
                 icon={<MapPin className="h-5 w-5 sm:h-6 sm:w-6" />}
-                title="Orchard Headquarters"
-                value="The Golden Valley, Multan, Pakistan"
+                title="City"
+                value="Multan, Pakistan"
               />
             </div>
           </motion.div>

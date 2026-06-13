@@ -6,7 +6,7 @@ const Product = require("../models/Product");
 const { protect, adminOnly } = require("../middleware/auth");
 const { logAudit } = require("../utils/audit");
 const { validate } = require("../middleware/validate");
-const { sendOrderConfirmed, sendOrderCancelled, sendOrderDelivered } = require("../utils/emailService");
+const { sendOrderConfirmed, sendOrderCancelled, sendOrderDelivered, sendNewOrderAdminNotification } = require("../utils/emailService");
 
 const DELIVERY_FEE = 450;
 const router = express.Router();
@@ -66,6 +66,20 @@ router.post("/checkout", async (req, res) => {
       { $inc: { "variants.$.stock": -item.quantity } }
     );
   }
+
+  // Send email notification to admin about new order
+  const emailPayload = {
+    orderId: order._id,
+    items: orderItems,
+    subtotal: totalAmount,
+    deliveryFee: DELIVERY_FEE,
+    grandTotal: totalAmount + DELIVERY_FEE,
+    shippingAddress,
+    customerName,
+    customerEmail,
+    riderNotes
+  };
+  sendNewOrderAdminNotification(emailPayload).catch((err) => console.error("[Email] New order admin notification failed:", err.message));
 
   res.status(201).json(order);
 });

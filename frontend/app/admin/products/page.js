@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import api from "../../../lib/api";
+import { resolveImageUrl } from "../../../lib/imageUrl";
 import { Pencil, Trash2, Plus } from "lucide-react";
 
 const card = "rounded-xl bg-white border border-slate-200 shadow-sm p-5";
@@ -269,11 +270,7 @@ export default function AdminProductsPage() {
       {/* ── Product list ── */}
       <div className="space-y-3">
         {filtered.map((p) => {
-          const imgSrc = !p.image
-            ? "/images/mango.png"
-            : p.image.startsWith("data:") || p.image.startsWith("http")
-              ? p.image
-              : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${p.image}`;
+          const imgSrc = resolveImageUrl(p.image);
 
           const totalStock = (p.variants ?? []).reduce((s, v) => s + v.stock, 0);
           const lowStock = totalStock <= 5;

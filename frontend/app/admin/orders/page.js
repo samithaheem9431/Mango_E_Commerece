@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import api from "../../../lib/api";
 import StatusBadge from "../../../components/StatusBadge";
+import { resolveImageUrl } from "../../../lib/imageUrl";
 import { Download, ChevronDown, ChevronUp, MapPin, Phone, Mail, User, StickyNote, Package } from "lucide-react";
 
 const card = "rounded-xl bg-white border border-slate-200 shadow-sm";
@@ -100,11 +101,7 @@ function OrderRow({ order, onStatusChange }) {
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Items Ordered</p>
             <div className="space-y-2">
               {order.items?.map((item, i) => {
-                const imageSrc = item.image
-                  ? item.image.startsWith("data:") || item.image.startsWith("http")
-                    ? item.image
-                    : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${item.image}`
-                  : null;
+                const imageSrc = item.image ? resolveImageUrl(item.image, null) : null;
                 return (
                   <div key={i} className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2">
                     {imageSrc ? (

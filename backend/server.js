@@ -9,13 +9,13 @@ const helmet = require("helmet");
 const mongoSanitize = require("mongo-sanitize");
 const hpp = require("hpp");
 const connectDB = require("./config/db");
-const { ensureSuperAdmin, migrateCategoryImages } = require("./config/bootstrap");
+const { ensureSuperAdmin, migrateImagesToCloudinary } = require("./config/bootstrap");
 const { apiLimiter, authLimiter, adminLimiter } = require("./middleware/security");
 
 dotenv.config();
 connectDB().then(async () => {
   await ensureSuperAdmin();
-  await migrateCategoryImages();
+  await migrateImagesToCloudinary();
 });
 
 const app = express();
@@ -74,7 +74,13 @@ app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/admin", adminLimiter, require("./routes/adminRoutes"));
 
-app.use((err, _, res, __) => {
+app.use((err, req, res, __) => {
+  if (err?.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ message: "Image must be 5 MB or smaller." });
+  }
+  if (err?.message === "Only image uploads are allowed") {
+    return res.status(400).json({ message: err.message });
+  }
   console.error(err.message);
   res.status(500).json({ message: "Internal server error" });
 });

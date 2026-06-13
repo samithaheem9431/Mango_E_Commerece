@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import api from "../../lib/api";
 import { useCart } from "../../context/CartContext";
+import { resolveImageUrl } from "../../lib/imageUrl";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -135,11 +136,7 @@ export default function CheckoutPage() {
               {/* Items list */}
               <div className="max-h-64 space-y-3 overflow-y-auto pr-1">
                 {cartItems.map((item) => {
-                  const imageSrc = !item.product?.image
-                    ? "/mango.jpg"
-                    : item.product.image.startsWith("data:") || item.product.image.startsWith("http")
-                      ? item.product.image
-                      : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${item.product.image}`;
+                  const imageSrc = resolveImageUrl(item.product?.image, "/mango.jpg");
                   return (
                     <div key={`${item.product?._id}-${item.boxSize}`} className="flex items-center gap-3 rounded-xl bg-green-50 p-2">
                       <img src={imageSrc} alt={item.product?.name} className="h-12 w-12 rounded-lg object-cover ring-2 ring-amber-200" />

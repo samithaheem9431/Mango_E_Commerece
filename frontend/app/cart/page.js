@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
+import { resolveImageUrl } from "../../lib/imageUrl";
 
 export default function CartPage() {
   const { cart, total, updateCartItem, removeItem, clearCart } = useCart();
@@ -28,11 +29,7 @@ export default function CartPage() {
         )}
 
         {cartItems.map((item, idx) => {
-          const imageSrc = !item.product?.image
-            ? "/mango.jpg"
-            : item.product.image.startsWith("data:") || item.product.image.startsWith("http")
-              ? item.product.image
-              : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${item.product.image}`;
+          const imageSrc = resolveImageUrl(item.product?.image, "/mango.jpg");
 
           return (
             <div

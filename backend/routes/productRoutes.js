@@ -1,24 +1,11 @@
 const express = require("express");
-const multer = require("multer");
 const Product = require("../models/Product");
 const { protect, adminOnly } = require("../middleware/auth");
 const { logAudit } = require("../utils/audit");
+const upload = require("../middleware/uploadImage");
+const { uploadFromMulter, deleteByUrl } = require("../config/cloudinary");
 
 const router = express.Router();
-
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (_, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image uploads are allowed"));
-    }
-    cb(null, true);
-  }
-});
-
-const toDataUri = (file) => `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
 router.get("/", async (req, res) => {
   const { search = "", category = "" } = req.query;
@@ -47,12 +34,21 @@ router.post("/", protect, adminOnly, upload.single("image"), async (req, res) =>
     return res.status(400).json({ message: "Invalid variants format" });
   }
 
+  let imageUrl = "";
+  if (req.file) {
+    try {
+      imageUrl = await uploadFromMulter(req.file, "products");
+    } catch (err) {
+      return res.status(500).json({ message: err.message || "Image upload failed" });
+    }
+  }
+
   const payload = {
     name: req.body.name,
     category: req.body.category,
     description: req.body.description,
     variants,
-    image: req.file ? toDataUri(req.file) : ""
+    image: imageUrl
   };
 
   const product = await Product.create(payload);
@@ -67,6 +63,9 @@ router.post("/", protect, adminOnly, upload.single("image"), async (req, res) =>
 });
 
 router.put("/:id", protect, adminOnly, upload.single("image"), async (req, res) => {
+  const existing = await Product.findById(req.params.id);
+  if (!existing) return res.status(404).json({ message: "Product not found" });
+
   let variants;
   if (req.body.variants !== undefined) {
     try {
@@ -82,7 +81,15 @@ router.put("/:id", protect, adminOnly, upload.single("image"), async (req, res) 
     description: req.body.description,
     ...(variants !== undefined && { variants })
   };
-  if (req.file) update.image = toDataUri(req.file);
+
+  if (req.file) {
+    try {
+      update.image = await uploadFromMulter(req.file, "products");
+      await deleteByUrl(existing.image);
+    } catch (err) {
+      return res.status(500).json({ message: err.message || "Image upload failed" });
+    }
+  }
 
   const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true })
     .populate("category", "name icon tagline");
@@ -103,6 +110,7 @@ router.delete("/:id", protect, adminOnly, async (req, res) => {
   const product = await Product.findById(req.params.id);
   await Product.findByIdAndDelete(req.params.id);
   if (product) {
+    await deleteByUrl(product.image);
     await logAudit({
       actor: req.user._id,
       action: "delete_product",

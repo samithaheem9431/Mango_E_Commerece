@@ -1,26 +1,11 @@
 const express = require("express");
-const multer = require("multer");
 const Category = require("../models/Category");
 const { protect, adminOnly } = require("../middleware/auth");
 const { logAudit } = require("../utils/audit");
+const upload = require("../middleware/uploadImage");
+const { uploadFromMulter, deleteByUrl } = require("../config/cloudinary");
 
 const router = express.Router();
-
-// Memory storage — image is kept in req.file.buffer and saved as base64 in MongoDB.
-// Same approach used by productRoutes so images survive server restarts.
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (_, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image uploads are allowed"));
-    }
-    cb(null, true);
-  }
-});
-
-const toDataUri = (file) =>
-  `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
 router.get("/", async (_, res) => {
   const categories = await Category.find()
@@ -40,12 +25,19 @@ router.post("/", protect, adminOnly, upload.single("image"), async (req, res) =>
     return res.status(400).json({ message: "Category image is required" });
   }
 
+  let imageUrl;
+  try {
+    imageUrl = await uploadFromMulter(req.file, "categories");
+  } catch (err) {
+    return res.status(500).json({ message: err.message || "Image upload failed" });
+  }
+
   const category = await Category.create({
     name: name.trim(),
     tagline: (tagline || "").trim(),
     icon: icon || "leaf",
     sortOrder: Number(sortOrder) || 0,
-    image: toDataUri(req.file)
+    image: imageUrl
   });
 
   await logAudit({
@@ -70,7 +62,12 @@ router.put("/:id", protect, adminOnly, upload.single("image"), async (req, res) 
   if (req.body.sortOrder !== undefined) update.sortOrder = Number(req.body.sortOrder) || 0;
 
   if (req.file) {
-    update.image = toDataUri(req.file);
+    try {
+      update.image = await uploadFromMulter(req.file, "categories");
+      await deleteByUrl(existing.image);
+    } catch (err) {
+      return res.status(500).json({ message: err.message || "Image upload failed" });
+    }
   }
 
   const category = await Category.findByIdAndUpdate(req.params.id, update, { new: true });
@@ -89,6 +86,7 @@ router.put("/:id", protect, adminOnly, upload.single("image"), async (req, res) 
 router.delete("/:id", protect, adminOnly, async (req, res) => {
   const category = await Category.findById(req.params.id);
   if (category) {
+    await deleteByUrl(category.image);
     await Category.findByIdAndDelete(category._id);
     await logAudit({
       actor: req.user._id,

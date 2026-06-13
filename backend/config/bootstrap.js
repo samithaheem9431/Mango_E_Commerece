@@ -35,8 +35,6 @@ const ensureSuperAdmin = async () => {
   console.log("Super admin created from environment");
 };
 
-// Migration no longer needed — category images are now stored as base64 in MongoDB
-// (same approach as products), so no disk files are involved.
-const migrateCategoryImages = async () => {};
+const { migrateImagesToCloudinary } = require("../utils/imageMigration");
 
-module.exports = { ensureSuperAdmin, migrateCategoryImages };
+module.exports = { ensureSuperAdmin, migrateImagesToCloudinary };

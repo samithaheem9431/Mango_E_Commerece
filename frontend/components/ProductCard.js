@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useCart } from "../context/CartContext";
+import { resolveImageUrl } from "../lib/imageUrl";
 
 export default function ProductCard({ product }) {
   const { updateCartItem } = useCart();
@@ -24,11 +25,7 @@ export default function ProductCard({ product }) {
     toast.success(`${selectedBoxSize} box added to cart`);
   };
 
-  const imageSrc = !product.image
-    ? "/mango.jpg"
-    : product.image.startsWith("data:") || product.image.startsWith("http")
-      ? product.image
-      : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${product.image}`;
+  const imageSrc = resolveImageUrl(product.image, "/mango.jpg");
 
   const decrement = () => setQuantity((q) => Math.max(1, q - 1));
   const increment = () => setQuantity((q) => Math.min(stock, q + 1));
@@ -39,6 +36,8 @@ export default function ProductCard({ product }) {
         <img
           src={imageSrc}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           className="h-48 w-full object-cover transition duration-300 hover:scale-[1.03]"
         />
         <div className="absolute right-2 top-2">
